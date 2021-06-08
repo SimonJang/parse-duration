@@ -1,5 +1,5 @@
-let durationRE = /(-?(?:\d+\.?\d*|\d*\.?\d+)(?:e[-+]?\d+)?)\s*([\p{L}]*)/uig
-
+const durationRE = /(-?(?:\d+\.?\d*|\d*\.?\d+)(?:e[-+]?\d+)?)\s*([\p{L}]*)/uig
+const durationISO8601Re = /^P(?!$)(\d+(?:\.\d+)?Y)?(\d+(?:\.\d+)?M)?(\d+(?:\.\d+)?W)?(\d+(?:\.\d+)?D)?(T(?=\d)(\d+(?:\.\d+)?H)?(\d+(?:\.\d+)?M)?(\d+(?:\.\d+)?S)?)?$/uig
 
 /**
  * conversion ratios
@@ -66,6 +66,37 @@ function parse(str='', format='ms'){
 
 function unitRatio(str) {
   return parse[str] || parse[str.toLowerCase().replace(/s$/, '')]
+}
+
+function extractResults(result) {
+  let total = 0
+
+  const valueMap = {
+    1: 'Y',
+    2: 'M',
+    3: 'W',
+    4: 'D',
+    6: 'H',
+    7: 'M',
+    8: 'S',
+  }
+
+  for (const [index, value] of result.entries()) {
+    if (index === 0 || index === 5)  continue
+    if (!value) continue
+
+    const modifier = valueMap[index]
+
+    if (!modifier) continue
+
+    const [modValue, rest] = value.split(modifier)
+
+    if (rest === undefined) continue
+
+    total += parseFloat(modValue, 10) * unitRatio(modifier.toLowerCase())
+  }
+
+  return total;
 }
 
 export default parse

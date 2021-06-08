@@ -137,3 +137,12 @@ t('unicode support', t => {
 	t.equal(parse('5сек'), 5000)
 	t.end()
 })
+
+t('ISO 8601 duration support', t => {
+	t.equal(parse('PT1S'), parse('1s'))
+	t.equal(parse('P1D'), parse('1d'))
+	t.equal(parse('P0.5D'), parse('12h'))
+	t.equal(parse('P1Y', 'd'), parse('1y', 'd'))
+
+	t.end();
+});
